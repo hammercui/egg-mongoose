@@ -8,6 +8,6 @@
   * @property {Object} options - options to pass to the driver and mongoose-specific
   */
 exports.mongoose = {
-  url: '',
+  url: [],
   options: {},
 };

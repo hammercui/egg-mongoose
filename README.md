@@ -1,31 +1,11 @@
-# egg-mongoose
-[![NPM version][npm-image]][npm-url]
-[![build status][travis-image]][travis-url]
-[![Test coverage][codecov-image]][codecov-url]
-[![David deps][david-image]][david-url]
-[![Known Vulnerabilities][snyk-image]][snyk-url]
-[![npm download][download-image]][download-url]
+# egg-mongoose-multiple
 
-[npm-image]: https://img.shields.io/npm/v/egg-mongoose.svg?style=flat-square
-[npm-url]: https://npmjs.org/package/egg-mongoose
-[travis-image]: https://img.shields.io/travis/eggjs/egg-mongoose.svg?style=flat-square
-[travis-url]: https://travis-ci.org/eggjs/egg-mongoose
-[codecov-image]: https://img.shields.io/codecov/c/github/eggjs/egg-mongoose.svg?style=flat-square
-[codecov-url]: https://codecov.io/github/eggjs/egg-mongoose?branch=master
-[david-image]: https://img.shields.io/david/eggjs/egg-mongoose.svg?style=flat-square
-[david-url]: https://david-dm.org/eggjs/egg-mongoose
-[snyk-image]: https://snyk.io/test/npm/egg-mongoose/badge.svg?style=flat-square
-[snyk-url]: https://snyk.io/test/npm/egg-mongoose
-[download-image]: https://img.shields.io/npm/dm/egg-mongoose.svg?style=flat-square
-[download-url]: https://npmjs.org/package/egg-mongoose
+fork from [egg-mongoose](https://github.com/eggjs/egg-mongoose),but it`s different in two points like 
+this:
 
-Egg's mongoose plugin.
+* add the  support for mulitple mongodb sources. 
 
-## Install
-
-```bash
-$ npm i egg-mongoose --save
-```
+* becase i haven`t commite this plug to npm center,you should use it by real file path.
 
 ## Usage
 
@@ -33,38 +13,53 @@ $ npm i egg-mongoose --save
 // {app_root}/config/plugin.js
 exports.mongoose = {
   enable: true,
-  package: 'egg-mongoose',
+  //package: 'egg-mongoose',
+  path:"/Users/cly/Desktop/nodeProject/egg-mongoose-multiple",
 };
 ```
 
-## Configuration
-
-```js
-// {app_root}/config/config.default.js
-exports.mongoose = {
-  url: 'mongodb://127.0.0.1/example',
-  options: {}
-};
-```
-
-see [config/config.default.js](config/config.default.js) for more detail.
 
 ## Multi-mongos support
 
 ```js
 // {app_root}/config/config.default.js
 exports.mongoose = {
-  url: 'mongodb://mongosA:27501,mongosB:27501',
+  url: [{dbA:"mongodb://urlA"},
+  		{dbB:"mongodb://urlB},
+  		...],
   options: {}
 };
 ```
 
 ## Example
+connection dbA
+
 ```js
-// app/model/user.js
+// app/model/userA.js
 module.exports = app => {
-  const mongoose = app.mongoose;
-  const UserSchema = new mongoose.Schema({
+  const mongoose = app.mongoose.dbA;
+  const Schema = mongoose.Schema
+  const UserSchema = Schema({
+    userName: { type: String  },
+    password: { type: String  }
+  });
+
+  return mongoose.model('User', UserSchema);
+}
+// app/controller/userA.js
+exports.index = function* (ctx) {
+  ctx.body = yield ctx.model.UserA.find({});  // you should use upper case to access mongoose model
+}
+
+```
+connection dbB
+
+```
+// app/model/userB.js
+module.exports = app => {
+  const mongoose = app.mongoose.dbB;
+  const Schema = mongoose.Schema
+  const UserSchema = Schema({
     userName: { type: String  },
     password: { type: String  }
   });
@@ -72,19 +67,12 @@ module.exports = app => {
   return mongoose.model('User', UserSchema);
 }
 
-// app/controller/user.js
+// app/controller/userB.js
 exports.index = function* (ctx) {
-  ctx.body = yield ctx.model.User.find({});  // you should use upper case to access mongoose model
+  ctx.body = yield ctx.model.UserB.find({});  // you should use upper case to access mongoose model
 }
+
 ```
-
-## Questions & Suggestions
-
-Please open an issue [here](https://github.com/eggjs/egg-mongoose/issues).
-
-## Contribution
-
-If you are a contributor, follow [CONTRIBUTING](https://eggjs.org/zh-cn/contributing.html).
 
 ## License
 
