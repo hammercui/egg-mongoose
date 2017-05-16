@@ -25,7 +25,7 @@ exports.mongoose = {
 // {app_root}/config/config.default.js
 exports.mongoose = {
   url: [{dbA:"mongodb://urlA"},
-  		{dbB:"mongodb://urlB},
+  		{dbB:"mongodb://urlB"},
   		...],
   options: {}
 };
